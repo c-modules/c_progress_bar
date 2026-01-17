@@ -14,6 +14,12 @@
 #define CPB_VERSION "Unknown"
 #endif
 
+// Terminal width when it cannot be determined
+#define CPB_DEFAULT_TERMINAL_WIDTH 80
+
+// Default output width when printing to file
+#define CPB_DEFAULT_FILE_WIDTH 120
+
 typedef struct CPB_ProgressBar
 {
     size_t start;

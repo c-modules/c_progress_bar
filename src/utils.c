@@ -1,6 +1,6 @@
 /**
  * \file utils.c
- * \brief Utility functions for C Traceback library.
+ * \brief Utility functions for C Progress Bar library.
  *
  * \author Ching-Yin Ng
  */
@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "c_traceback.h"
 #include "internal/utils.h"
 
 #ifdef _WIN32
@@ -175,7 +174,7 @@ int get_terminal_width(FILE *stream)
 {
     if (!stream)
     {
-        return CTB_DEFAULT_FILE_WIDTH;
+        return CPB_DEFAULT_FILE_WIDTH;
     }
 
 #ifdef _WIN32
@@ -206,5 +205,5 @@ int get_terminal_width(FILE *stream)
         return atoi(env_cols);
     }
 
-    return CTB_DEFAULT_TERMINAL_WIDTH;
+    return CPB_DEFAULT_TERMINAL_WIDTH;
 }
