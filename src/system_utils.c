@@ -226,7 +226,7 @@ double get_monotonic_time(const CPB_ProgressBar *restrict progress_bar)
 #ifdef _WIN32
     LARGE_INTEGER now;
     QueryPerformanceCounter(&now);
-    return (double)now.QuadPart * progress_bar->_timer_freq_inv;
+    return (double)now.QuadPart * progress_bar->internal._timer_freq_inv;
 
 #else
     (void)progress_bar;

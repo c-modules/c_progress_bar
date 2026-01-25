@@ -70,7 +70,7 @@ void cpb_update(CPB_ProgressBar *restrict progress_bar, int64_t current)
     }
 
     progress_bar->current = current;
-    const int progress_percent = calculate_percentage(progress_bar);
+    const int progress_percent = (int)calculate_percentage(progress_bar);
 
     // WARNING: zu is wrong, should remove later
     printf(
