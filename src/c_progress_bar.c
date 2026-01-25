@@ -40,12 +40,12 @@ void cpb_init(
     progress_bar->internal.unique_updates_count = 0;
     progress_bar->internal.window_index = 0;
     progress_bar->internal.time_start = 0.0;
-    progress_bar->internal.eta_time_last_update = 0.0;
-    progress_bar->internal.eta_percent_last_update = 0.0;
+    progress_bar->internal.timer_time_last_update = 0.0;
+    progress_bar->internal.timer_percent_last_update = 0.0;
     for (int i = 0; i < 5; i++)
     {
-        progress_bar->internal.eta_time_diffs[i] = 0.0;
-        progress_bar->internal.eta_percent_diffs[i] = 0.0;
+        progress_bar->internal.timer_time_diffs[i] = 0.0;
+        progress_bar->internal.timer_percent_diffs[i] = 0.0;
     }
 }
 
@@ -58,8 +58,17 @@ void cpb_start(CPB_ProgressBar *restrict progress_bar)
 
     progress_bar->is_started = true;
     progress_bar->internal.time_start = get_monotonic_time(progress_bar);
-    progress_bar->internal.eta_time_last_update = progress_bar->internal.time_start;
-    progress_bar->internal.eta_percent_last_update = calculate_percentage(progress_bar);
+    progress_bar->internal.timer_time_last_update = progress_bar->internal.time_start;
+    progress_bar->internal.timer_percent_last_update =
+        calculate_percentage(progress_bar);
+
+    printf(
+        "\r\033[2K\033[?25lProgress: %zu / %zu %3d%%",
+        progress_bar->current,
+        progress_bar->total,
+        (int)progress_bar->internal.timer_percent_last_update
+    );
+    fflush(stdout);
 }
 
 void cpb_update(CPB_ProgressBar *restrict progress_bar, int64_t current)
@@ -70,15 +79,26 @@ void cpb_update(CPB_ProgressBar *restrict progress_bar, int64_t current)
     }
 
     progress_bar->current = current;
-    const int progress_percent = (int)calculate_percentage(progress_bar);
+    double current_time = get_monotonic_time(progress_bar);
+    if ((current_time - progress_bar->internal.timer_time_last_update) <
+        progress_bar->config.min_refresh_time)
+    {
+        return;
+    }
+
+    const double progress_percent = (int)calculate_percentage(progress_bar);
 
     // WARNING: zu is wrong, should remove later
     printf(
-        "\r\033[?25lProgress: %zu / %zu %3d%%",
+        "\r\033[2K\033[?25lProgress: %zu / %zu %3d%%",
         progress_bar->current,
         progress_bar->total,
-        progress_percent
+        (int)progress_percent
     );
+    fflush(stdout);
+
+    progress_bar->internal.timer_time_last_update = current_time;
+    progress_bar->internal.timer_percent_last_update = progress_percent;
 }
 
 void cpb_finish(CPB_ProgressBar *restrict progress_bar)
@@ -88,5 +108,15 @@ void cpb_finish(CPB_ProgressBar *restrict progress_bar)
         return;
     }
 
+    const double progress_percent = (int)calculate_percentage(progress_bar);
     progress_bar->is_finished = true;
+
+    printf(
+        "\r\033[2K\033[?25lProgress: %zu / %zu %3d%%\033[?25h\n",
+        progress_bar->current,
+        progress_bar->total,
+        (int)progress_percent
+    );
+    fflush(stdout);
 }
+

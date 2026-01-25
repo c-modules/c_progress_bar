@@ -42,10 +42,10 @@ typedef struct CPB_ProgressBar
         int64_t unique_updates_count;
         int32_t window_index;
         double time_start;
-        double eta_time_last_update;
-        double eta_percent_last_update;
-        double eta_time_diffs[5];
-        double eta_percent_diffs[5];
+        double timer_time_last_update;
+        double timer_percent_last_update;
+        double timer_time_diffs[5];
+        double timer_percent_diffs[5];
 
         // For monotonic time calculation on Windows
         double _timer_freq_inv;
