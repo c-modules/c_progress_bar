@@ -8,8 +8,8 @@
 #include "internal/system_utils.h"
 
 static bool update_timer_data(CPB_ProgressBar *restrict progress_bar);
-static void
-calculate_and_print_elapsed_time(const CPB_ProgressBar *restrict progress_bar);
+static void print_elapsed_time(const CPB_ProgressBar *restrict progress_bar);
+static void print_remaining_time(const CPB_ProgressBar *restrict progress_bar);
 static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar);
 
 CPB_Config cpb_get_default_config(void)
@@ -145,8 +145,7 @@ static bool update_timer_data(CPB_ProgressBar *restrict progress_bar)
     return true;
 }
 
-static void
-calculate_and_print_elapsed_time(const CPB_ProgressBar *restrict progress_bar)
+static void print_elapsed_time(const CPB_ProgressBar *restrict progress_bar)
 {
     const double elapsed_time =
         (progress_bar->internal.timer_time_last_update -
@@ -167,6 +166,39 @@ calculate_and_print_elapsed_time(const CPB_ProgressBar *restrict progress_bar)
     }
 }
 
+static void print_remaining_time(const CPB_ProgressBar *restrict progress_bar)
+{
+    const double overall_rate = calculate_overall_rate(progress_bar);
+    const double recent_rate = calculate_recent_rate(progress_bar);
+    const double blended_rate =
+        progress_bar->config.timer_remaining_time_recent_weight * recent_rate +
+        (1.0 - progress_bar->config.timer_remaining_time_recent_weight) * overall_rate;
+
+    if (blended_rate <= 0.0)
+    {
+        fputs("--:--:--", stdout);
+        return;
+    }
+
+    const double remaining_percentage =
+        100.0 - progress_bar->internal.timer_percentage_last_update;
+    const double estimated_remaining_time = remaining_percentage / blended_rate;
+
+    // Calculate remaining hours, minutes and seconds
+    const int hours = ((int)estimated_remaining_time) / 3600;
+    const int minutes = ((int)estimated_remaining_time % 3600) / 60;
+    const int seconds = ((int)estimated_remaining_time % 60);
+
+    if (hours < 0 || minutes < 0 || seconds < 0)
+    {
+        fputs("--:--:--", stdout);
+    }
+    else
+    {
+        printf("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+}
+
 static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar)
 {
     printf(
@@ -175,7 +207,9 @@ static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar)
         progress_bar->total,
         (int)progress_bar->internal.timer_percentage_last_update
     );
-    calculate_and_print_elapsed_time(progress_bar);
+    print_elapsed_time(progress_bar);
+    fputs(" ", stdout);
+    print_remaining_time(progress_bar);
     if (progress_bar->is_finished)
     {
         fputs("\033[?25h\n", stdout);
