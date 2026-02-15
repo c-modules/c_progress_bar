@@ -19,12 +19,16 @@ typedef struct
     const char *bar_empty_head;
     const char *separator;
 
+    const char *color_spinner;
     const char *color_fill;
     const char *color_fill_after_ended;
     const char *color_empty;
     const char *color_percentage;
     const char *color_remaining_time;
     const char *color_elapsed_time;
+
+    const int spinner_animation_length;
+    const char *spinner[9];
 } UTF8Codes;
 
 static bool update_timer_data(CPB_ProgressBar *restrict progress_bar);
@@ -240,12 +244,27 @@ static UTF8Codes get_utf8_codes(const CPB_ProgressBar *restrict progress_bar)
             .bar_empty_head = "\u257A",
             .separator = "\u2022",
 
+            .color_spinner = "\033[0;32m",
             .color_fill = "\033[38;5;197m",
             .color_fill_after_ended = "\033[38;5;106m",
             .color_empty = "\033[0;90m",
             .color_percentage = "\033[0;35m",
             .color_remaining_time = "\033[0;36m",
             .color_elapsed_time = "\033[0;33m",
+
+            .spinner_animation_length = 9,
+            .spinner =
+                {
+                    "\u280B",
+                    "\u2819",
+                    "\u2839",
+                    "\u2838",
+                    "\u283C",
+                    "\u2834",
+                    "\u2826",
+                    "\u2827",
+                    "\u2807",
+                },
         };
     }
     else
@@ -261,12 +280,16 @@ static UTF8Codes get_utf8_codes(const CPB_ProgressBar *restrict progress_bar)
             .bar_empty_head = ">",
             .separator = "*",
 
+            .color_spinner = "",
             .color_fill = "",
             .color_fill_after_ended = "",
             .color_empty = "",
             .color_percentage = "",
             .color_remaining_time = "",
             .color_elapsed_time = "",
+
+            .spinner_animation_length = -1,
+            .spinner = {NULL},
         };
     }
 }
@@ -293,6 +316,16 @@ static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar)
     const char *fill_color = progress_bar->is_finished
                                  ? utf8_codes.color_fill_after_ended
                                  : utf8_codes.color_fill;
+
+    if (utf8_codes.spinner_animation_length > 0)
+    {
+        const int spinner_index =
+            progress_bar->internal.updates_count % utf8_codes.spinner_animation_length;
+        fputs(utf8_codes.color_spinner, stdout);
+        fputs(utf8_codes.spinner[spinner_index], stdout);
+        fputs(utf8_codes.reset, stdout);
+        fputs(" ", stdout);
+    }
 
     if (filled_half_cells > 0)
     {
