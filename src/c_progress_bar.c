@@ -22,6 +22,8 @@ typedef struct
     const char *erase_current_line;
     const char *disable_cursor;
 
+    const char *bar_prefix;
+    const char *bar_suffix;
     const char *bar_fill;
     const char *bar_empty;
     const char *bar_fill_head;
@@ -251,6 +253,8 @@ static UTF8Codes get_utf8_codes(const CPB_ProgressBar *restrict progress_bar)
             .erase_current_line = "\033[2K",
             .disable_cursor = "\033[?25l",
 
+            .bar_prefix = "",
+            .bar_suffix = "",
             .bar_fill = "\u2501",
             .bar_empty = "\u2501",
             .bar_fill_head = "\u2578",
@@ -289,6 +293,8 @@ static UTF8Codes get_utf8_codes(const CPB_ProgressBar *restrict progress_bar)
             .erase_current_line = "",
             .disable_cursor = "",
 
+            .bar_prefix = "[",
+            .bar_suffix = "]",
             .bar_fill = "=",
             .bar_empty = " ",
             .bar_fill_head = ">",
@@ -355,6 +361,7 @@ static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar)
     }
 
     // Filled cells
+    fputs(utf8_codes.bar_prefix, stdout);
     if (filled_half_cells > 0)
     {
         fputs(fill_color, stdout);
@@ -387,6 +394,7 @@ static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar)
         }
     }
     fputs(utf8_codes.reset, stdout);
+    fputs(utf8_codes.bar_suffix, stdout);
 
     // Extra Info
     printf(
