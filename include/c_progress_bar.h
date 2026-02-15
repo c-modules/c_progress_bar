@@ -61,20 +61,45 @@ typedef struct CPB_ProgressBar
 } CPB_ProgressBar;
 
 /**
- * \brief Print compilation information such as compiler version,
- *        compilation date, and configurations.
+ * \brief Get the default configuration for a progress bar.
  */
-// void cpb_print_compilation_info(void);
-
 CPB_Config cpb_get_default_config(void);
+
+/**
+ * \brief Initialize a progress bar.
+ *
+ * \param progress_bar The progress bar to initialize.
+ * \param start The starting value of the progress bar.
+ * \param total The total value of the progress bar.
+ * \param config The configuration for the progress bar.
+ */
 void cpb_init(
     CPB_ProgressBar *restrict progress_bar,
     int64_t start,
     int64_t total,
     CPB_Config config
 );
+
+/**
+ * \brief Start a progress bar.
+ *
+ * \param progress_bar The progress bar to start.
+ */
 void cpb_start(CPB_ProgressBar *restrict progress_bar);
+
+/**
+ * \brief Update a progress bar.
+ *
+ * \param progress_bar The progress bar to update.
+ * \param current The current value of the progress bar.
+ */
 void cpb_update(CPB_ProgressBar *restrict progress_bar, int64_t current);
+
+/**
+ * \brief Finish a progress bar.
+ *
+ * \param progress_bar The progress bar to finish.
+ */
 void cpb_finish(CPB_ProgressBar *restrict progress_bar);
 
 #endif /* C_PROGRESS_BAR_H */

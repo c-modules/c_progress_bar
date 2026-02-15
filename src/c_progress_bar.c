@@ -1,3 +1,10 @@
+/**
+ * \file c_progress_bar.c
+ * \brief Implementation of C Progress Bar library
+ *
+ * \author Ching-Yin Ng
+ */
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
