@@ -9,6 +9,8 @@
 
 typedef struct
 {
+    const bool is_utf8;
+
     const char *reset;
     const char *erase_current_line;
     const char *disable_cursor;
@@ -40,7 +42,9 @@ static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar);
 CPB_Config cpb_get_default_config(void)
 {
     CPB_Config config = {
-        .min_refresh_time = 0.1, .timer_remaining_time_recent_weight = 0.3
+        .description = "",
+        .min_refresh_time = 0.1,
+        .timer_remaining_time_recent_weight = 0.3
     };
     return config;
 }
@@ -234,6 +238,8 @@ static UTF8Codes get_utf8_codes(const CPB_ProgressBar *restrict progress_bar)
     if (should_use_utf8(stdout) && should_use_color(stdout))
     {
         return (UTF8Codes){
+            .is_utf8 = true,
+
             .reset = "\033[0m",
             .erase_current_line = "\033[2K",
             .disable_cursor = "\033[?25l",
@@ -270,6 +276,8 @@ static UTF8Codes get_utf8_codes(const CPB_ProgressBar *restrict progress_bar)
     else
     {
         return (UTF8Codes){
+            .is_utf8 = false,
+
             .reset = "",
             .erase_current_line = "",
             .disable_cursor = "",
@@ -298,9 +306,12 @@ static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar)
 {
     const UTF8Codes utf8_codes = get_utf8_codes(progress_bar);
     fputs("\r", stdout);
-    fputs(utf8_codes.reset, stdout);
-    fputs(utf8_codes.disable_cursor, stdout);
-    fputs(utf8_codes.erase_current_line, stdout);
+    if (utf8_codes.is_utf8)
+    {
+        fputs(utf8_codes.reset, stdout);
+        fputs(utf8_codes.disable_cursor, stdout);
+        fputs(utf8_codes.erase_current_line, stdout);
+    }
 
     const double percentage = progress_bar->internal.timer_percentage_last_update;
     const double clamped =
@@ -317,6 +328,7 @@ static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar)
                                  ? utf8_codes.color_fill_after_ended
                                  : utf8_codes.color_fill;
 
+    // Spinner
     if (utf8_codes.spinner_animation_length > 0)
     {
         const int spinner_index =
@@ -327,6 +339,15 @@ static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar)
         fputs(" ", stdout);
     }
 
+    // Description
+    const char *description = progress_bar->config.description;
+    if (description[0] != '\0')
+    {
+        fputs(description, stdout);
+        fputs(" ", stdout);
+    }
+
+    // Filled cells
     if (filled_half_cells > 0)
     {
         fputs(fill_color, stdout);
@@ -342,6 +363,7 @@ static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar)
         fputs(utf8_codes.reset, stdout);
     }
 
+    // Unfilled cells
     if (empty_cells > 0)
     {
         fputs(utf8_codes.color_empty, stdout);
@@ -359,6 +381,7 @@ static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar)
     }
     fputs(utf8_codes.reset, stdout);
 
+    // Extra Info
     printf(
         " %s%3d%%%s %s ",
         utf8_codes.color_percentage,
@@ -375,9 +398,12 @@ static void print_progress_bar(const CPB_ProgressBar *restrict progress_bar)
     fputs(utf8_codes.color_remaining_time, stdout);
     print_remaining_time(progress_bar);
     fputs(utf8_codes.reset, stdout);
+
+    // Reset cursor
     if (progress_bar->is_finished)
     {
         fputs("\033[?25h\n", stdout);
     }
+
     fflush(stdout);
 }

@@ -11,6 +11,7 @@ int main(void)
     double sum = 0.0;
 
     CPB_Config config = cpb_get_default_config();
+    config.description = "Processing";
     CPB_ProgressBar progress_bar;
     cpb_init(&progress_bar, 0, N, config);
 

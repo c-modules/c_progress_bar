@@ -30,10 +30,11 @@
 
 typedef struct CPB_Config
 {
+    char *description;
     double min_refresh_time;
-
     double timer_remaining_time_recent_weight;
 } CPB_Config;
+
 typedef struct CPB_ProgressBar
 {
     int64_t start;
