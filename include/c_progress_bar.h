@@ -25,6 +25,9 @@
 // Number of data points to keep for timer calculations
 #define CPB_TIMER_DATA_POINTS 5
 
+// Progress bar default width
+#define CPB_PROGRESS_BAR_DEFAULT_WIDTH 40
+
 typedef struct CPB_Config
 {
     double min_refresh_time;
