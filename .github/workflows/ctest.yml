@@ -51,7 +51,7 @@ jobs:
 
     - name: Configure CMake (Windows)
       if: runner.os == 'Windows'
-      run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON -G "Visual Studio 17 2022"
+      run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON
 
     - name: Build
       run: cmake --build build --config Release
