@@ -17,6 +17,19 @@ A simple progress bar library for C.
 ![Example Image (C Progress Bar)](.github/images/example2.png)
 * On Windows, only the simple `no-color` version will be displayed. However, it is possible to fix by using wide characters (Help needed)
 
+## Compiling Examples
+To compile the examples, we use cmake:
+```
+git clone https://github.com/c-modules/c_progress_bar
+cd c_progress_bar
+cmake -B build -S . -DBUILD_EXAMPLES=ON
+cmake --build build
+```
+Run the example by
+```
+./build/examples/example
+```
+
 ## Sample Usage
 ```c
 #include <stdint.h>
