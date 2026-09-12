@@ -8,12 +8,14 @@ on:
       - 'include/**'
       - 'examples/**'
       - 'tests/**'
+      - '.github/workflows/**'
   pull_request:
     paths:
       - 'src/**'
       - 'include/**'
       - 'examples/**'
       - 'tests/**'
+      - '.github/workflows/**'
 
 permissions:
   contents: read
